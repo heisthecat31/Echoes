@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echoes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="mode-normal is-loading">
+
+  <!-- ============================ ICONS ============================ -->
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M7.5 5.27v13.46a1.1 1.1 0 0 0 1.68.93l10.6-6.73a1.1 1.1 0 0 0 0-1.86L9.18 4.34a1.1 1.1 0 0 0-1.68.93z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect fill="currentColor" x="6" y="4.5" width="4.2" height="15" rx="1.3"/><rect fill="currentColor" x="13.8" y="4.5" width="4.2" height="15" rx="1.3"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path fill="currentColor" d="M5 6.1v11.8a1 1 0 0 0 1.55.83l8.6-5.9a1 1 0 0 0 0-1.66l-8.6-5.9A1 1 0 0 0 5 6.1z"/><rect fill="currentColor" x="16.6" y="5" width="2.6" height="14" rx="1.3"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.1v11.8a1 1 0 0 1-1.55.83l-8.6-5.9a1 1 0 0 1 0-1.66l8.6-5.9A1 1 0 0 1 19 6.1z"/><rect fill="currentColor" x="4.8" y="5" width="2.6" height="14" rx="1.3"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3.2c2 0 3.4 1 4.4 2.6l2.8 4.8c1 1.6 2.4 2.6 4.4 2.6H21"/><path d="M3 17h3.2c1.3 0 2.3-.4 3.1-1.1M14.7 8.1c.8-.7 1.8-1.1 3.1-1.1H21"/><path d="m18 4 3 3-3 3M18 14l3 3-3 3"/></g></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m17 3 3 3-3 3"/><path d="M4 11.5V10a4 4 0 0 1 4-4h12"/><path d="m7 21-3-3 3-3"/><path d="M20 12.5V14a4 4 0 0 1-4 4H4"/></g></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M12 20s-7.2-4.4-8.9-9C1.9 7.6 4 4.5 7.3 4.5c1.9 0 3.5 1 4.7 2.7 1.2-1.7 2.8-2.7 4.7-2.7 3.3 0 5.4 3.1 4.2 6.5-1.7 4.6-8.9 9-8.9 9z"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path fill="currentColor" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M12 20s-7.2-4.4-8.9-9C1.9 7.6 4 4.5 7.3 4.5c1.9 0 3.5 1 4.7 2.7 1.2-1.7 2.8-2.7 4.7-2.7 3.3 0 5.4 3.1 4.2 6.5-1.7 4.6-8.9 9-8.9 9z"/></symbol>
+    <symbol id="i-thumbdown" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M17 14V3.5M9.2 18.6 10 14.5H4.8a2 2 0 0 1-1.93-2.52l1.9-7A2 2 0 0 1 6.7 3.5H19a1.8 1.8 0 0 1 1.8 1.8v6.9A1.8 1.8 0 0 1 19 14h-2.2a2 2 0 0 0-1.76 1.05L12.4 20a2.4 2.4 0 0 1-3.2-1.4z"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path fill="currentColor" d="M11 5.2 6.6 8.7H4a1 1 0 0 0-1 1v4.6a1 1 0 0 0 1 1h2.6l4.4 3.5a.6.6 0 0 0 1-.47V5.67a.6.6 0 0 0-1-.47z"/><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path class="w1" d="M15.3 9a4.3 4.3 0 0 1 0 6"/><path class="w2" d="M18 6.3a8 8 0 0 1 0 11.4"/></g></symbol>
+    <symbol id="i-vol-mute" viewBox="0 0 24 24"><path fill="currentColor" d="M11 5.2 6.6 8.7H4a1 1 0 0 0-1 1v4.6a1 1 0 0 0 1 1h2.6l4.4 3.5a.6.6 0 0 0 1-.47V5.67a.6.6 0 0 0-1-.47z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="m15.5 9.5 5 5M20.5 9.5l-5 5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m14.5 6-6 6 6 6"/></symbol>
+    <symbol id="i-forward" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9.5 6 6 6-6 6"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 10.4 12 4l8 6.4V19a1 1 0 0 1-1 1h-4.3v-5.6H9.3V20H5a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-reload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9L20 8.5"/><path d="M20 4v4.5h-4.5"/></g></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4H20v5.5M9.5 20H4v-5.5M20 4l-6.2 6.2M4 20l6.2-6.2"/></g></symbol>
+    <symbol id="i-collapse" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9.5 6 6 6-6"/></symbol>
+    <symbol id="i-mini" viewBox="0 0 24 24"><rect x="2.8" y="4.5" width="18.4" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="11.6" y="11.6" width="7" height="5.4" rx="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-lyrics" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></g></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6.5h12M4 12h12M4 17.5h7"/><circle cx="17.5" cy="17" r="2.5"/><path d="M20 17V9.5"/></g></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></g></symbol>
+    <symbol id="i-min" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.3" d="M6.5 12h11"/></symbol>
+    <symbol id="i-max" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6.5" y="8.5" width="9" height="9" rx="1.6"/><path d="M9 6.5h6.9a1.6 1.6 0 0 1 1.6 1.6V15"/></g></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="m7 7 10 10M17 7 7 17"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 32 32">
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a8a"/><stop offset=".5" stop-color="#ff3d6e"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+      </defs>
+      <circle cx="16" cy="16" r="15" fill="url(#lg)"/>
+      <g fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2.2">
+        <path d="M10 13v6" opacity=".75"/><path d="M14 9.5v13"/><path d="M18 11.5v9"/><path d="M22 14v4" opacity=".75"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <!-- ============================ AMBIENT ============================ -->
+  <div id="ambient" aria-hidden="true">
+    <div class="amb-art" data-layer="0"></div>
+    <div class="amb-art" data-layer="1"></div>
+    <canvas class="amb-video" data-video></canvas>
+    <div class="amb-glow"></div>
+    <div class="amb-vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <!-- ============================ TITLE BAR ============================ -->
+  <header id="titlebar" class="drag">
+    <div class="tb-left">
+      <div class="mac-spacer"></div>
+      <div class="brand">
+        <svg class="brand-logo"><use href="#i-logo"/></svg>
+        <span class="brand-name">Echoes</span>
+      </div>
+      <div class="tb-nav no-drag">
+        <button class="ib" id="nav-back" aria-label="Back" data-tip="Back  ·  Alt ←"><svg><use href="#i-back"/></svg></button>
+        <button class="ib" id="nav-forward" aria-label="Forward" data-tip="Forward  ·  Alt →"><svg><use href="#i-forward"/></svg></button>
+        <button class="ib" id="nav-home" aria-label="Home" data-tip="Home"><svg><use href="#i-home"/></svg></button>
+        <button class="ib" id="nav-reload" aria-label="Reload" data-tip="Reload  ·  Ctrl R"><svg><use href="#i-reload"/></svg></button>
+      </div>
+    </div>
+
+    <div class="tb-center">
+      <div class="tb-loading"><span class="spinner"></span>Loading</div>
+    </div>
+
+    <div class="tb-right no-drag">
+      <button class="ib" id="tb-nowplaying" aria-label="Now playing" data-tip="Now Playing  ·  Ctrl ⇧ F"><svg><use href="#i-expand"/></svg></button>
+      <button class="ib" id="tb-mini" aria-label="Mini player" data-tip="Mini Player  ·  Ctrl ⇧ M"><svg><use href="#i-mini"/></svg></button>
+      <button class="ib" id="tb-settings" aria-label="Settings" data-tip="Settings  ·  Ctrl ,"><svg><use href="#i-settings"/></svg></button>
+      <div class="win-controls">
+        <span class="tb-sep"></span>
+        <button class="wc" id="win-min" aria-label="Minimize"><svg><use href="#i-min"/></svg></button>
+        <button class="wc" id="win-max" aria-label="Maximize"><svg><use href="#i-max"/></svg></button>
+        <button class="wc wc-close" id="win-close" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Placeholder shown under the (transparent) YouTube Music view -->
+  <main id="content-slot">
+    <div class="splash">
+      <svg class="splash-logo"><use href="#i-logo"/></svg>
+      <div class="splash-bars"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="splash-text">Tuning in to YouTube Music…</p>
+    </div>
+    <div class="error-card" hidden>
+      <h2>Can't reach YouTube Music</h2>
+      <p class="error-desc">Check your connection and try again.</p>
+      <button class="btn-primary" id="error-retry">Try again</button>
+    </div>
+  </main>
+
+  <!-- ============================ PLAYER BAR ============================ -->
+  <footer id="playerbar" class="no-track">
+    <div class="pb-track">
+      <button class="pb-art" id="pb-art" aria-label="Open Now Playing">
+        <img alt="" data-art />
+        <span class="pb-art-hover"><svg><use href="#i-expand"/></svg></span>
+      </button>
+      <div class="pb-meta">
+        <div class="pb-title" data-title>Nothing playing</div>
+        <div class="pb-sub" data-sub>Pick something to listen to</div>
+      </div>
+      <button class="ib like" data-cmd="like" aria-label="Like" data-tip="Like"><svg class="h-off"><use href="#i-heart"/></svg><svg class="h-on"><use href="#i-heart-fill"/></svg></button>
+    </div>
+
+    <div class="pb-center">
+      <div class="controls">
+        <button class="ib ctl" data-cmd="shuffle" aria-label="Shuffle" data-tip="Shuffle"><svg><use href="#i-shuffle"/></svg></button>
+        <button class="ib ctl" data-cmd="prev" aria-label="Previous" data-tip="Previous"><svg><use href="#i-prev"/></svg></button>
+        <button class="play" data-cmd="toggle" aria-label="Play">
+          <svg class="p-play"><use href="#i-play"/></svg><svg class="p-pause"><use href="#i-pause"/></svg>
+        </button>
+        <button class="ib ctl" data-cmd="next" aria-label="Next" data-tip="Next"><svg><use href="#i-next"/></svg></button>
+        <button class="ib ctl repeat" data-cmd="repeat" aria-label="Repeat" data-tip="Repeat"><svg><use href="#i-repeat"/></svg><b class="one">1</b></button>
+      </div>
+      <div class="timeline">
+        <span class="t" data-time>0:00</span>
+        <div class="slider seek" data-seek role="slider" aria-label="Seek" tabindex="0">
+          <div class="rail"><div class="buffer"></div><div class="fill"></div></div><div class="knob"></div>
+          <div class="hover-tip">0:00</div>
+        </div>
+        <span class="t" data-duration>0:00</span>
+      </div>
+    </div>
+
+    <div class="pb-right">
+      <button class="ib" data-cmd="dislike" aria-label="Dislike" data-tip="Dislike"><svg><use href="#i-thumbdown"/></svg></button>
+      <button class="ib" id="pb-lyrics" aria-label="Lyrics" data-tip="Lyrics"><svg><use href="#i-lyrics"/></svg></button>
+      <button class="ib" id="pb-queue" aria-label="Queue" data-tip="Up Next"><svg><use href="#i-queue"/></svg></button>
+      <button class="ib" id="pb-mini" aria-label="Mini player" data-tip="Mini Player"><svg><use href="#i-mini"/></svg></button>
+      <div class="volume">
+        <button class="ib" data-cmd="mute" aria-label="Mute" data-tip="Mute"><svg class="v-on"><use href="#i-vol"/></svg><svg class="v-off"><use href="#i-vol-mute"/></svg></button>
+        <div class="slider vol" data-volume role="slider" aria-label="Volume" tabindex="0">
+          <div class="rail"><div class="fill"></div></div><div class="knob"></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================ NOW PLAYING ============================ -->
+  <section id="nowplaying" aria-label="Now Playing">
+    <div class="np-inner">
+      <div class="np-left">
+        <div class="np-art-wrap">
+          <img class="np-art" alt="" data-art-hi />
+          <div class="np-art-shadow"></div>
+        </div>
+      </div>
+
+      <div class="np-right">
+        <div class="np-head">
+          <span class="np-eyebrow"><span class="eq"><i></i><i></i><i></i></span>Now Playing</span>
+          <button class="ib np-close" id="np-close" aria-label="Close Now Playing" data-tip="Close  ·  Esc"><svg><use href="#i-collapse"/></svg></button>
+        </div>
+
+        <h1 class="np-title" data-title>Nothing playing</h1>
+        <p class="np-artist" data-artist></p>
+        <p class="np-album" data-album></p>
+
+        <div class="np-timeline">
+          <div class="slider seek big" data-seek role="slider" aria-label="Seek" tabindex="0">
+            <div class="rail"><div class="fill"></div></div><div class="knob"></div>
+            <div class="hover-tip">0:00</div>
+          </div>
+          <div class="np-times"><span data-time>0:00</span><span data-remaining>-0:00</span></div>
+        </div>
+
+        <div class="np-controls">
+          <button class="ib ctl like" data-cmd="like" aria-label="Like"><svg class="h-off"><use href="#i-heart"/></svg><svg class="h-on"><use href="#i-heart-fill"/></svg></button>
+          <button class="ib ctl" data-cmd="shuffle" aria-label="Shuffle"><svg><use href="#i-shuffle"/></svg></button>
+          <button class="ib ctl big" data-cmd="prev" aria-label="Previous"><svg><use href="#i-prev"/></svg></button>
+          <button class="play huge" data-cmd="toggle" aria-label="Play">
+            <svg class="p-play"><use href="#i-play"/></svg><svg class="p-pause"><use href="#i-pause"/></svg>
+          </button>
+          <button class="ib ctl big" data-cmd="next" aria-label="Next"><svg><use href="#i-next"/></svg></button>
+          <button class="ib ctl repeat" data-cmd="repeat" aria-label="Repeat"><svg><use href="#i-repeat"/></svg><b class="one">1</b></button>
+          <button class="ib ctl" data-cmd="dislike" aria-label="Dislike"><svg><use href="#i-thumbdown"/></svg></button>
+        </div>
+
+        <div class="np-queue">
+          <div class="np-queue-head">
+            <span>Up Next</span>
+            <span class="np-queue-count" data-queue-count></span>
+          </div>
+          <ol class="np-queue-list" data-queue>
+            <li class="q-empty">Your queue will show up here once something is playing.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ MINI PLAYER ============================ -->
+  <section id="mini" aria-label="Mini Player">
+    <img class="mini-art" alt="" data-art-hi />
+    <canvas class="mini-video" data-video></canvas>
+    <div class="mini-scrim"></div>
+    <div class="mini-top no-drag">
+      <button class="ib glassy" id="mini-expand" aria-label="Back to full window" data-tip="Full window"><svg><use href="#i-expand"/></svg></button>
+      <button class="ib glassy" id="mini-close" aria-label="Close" data-tip="Close"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <div class="mini-bottom">
+      <div class="mini-meta">
+        <div class="mini-title" data-title>Nothing playing</div>
+        <div class="mini-artist" data-artist></div>
+      </div>
+      <div class="mini-controls no-drag">
+        <button class="ib ctl like" data-cmd="like" aria-label="Like"><svg class="h-off"><use href="#i-heart"/></svg><svg class="h-on"><use href="#i-heart-fill"/></svg></button>
+        <button class="ib ctl" data-cmd="prev" aria-label="Previous"><svg><use href="#i-prev"/></svg></button>
+        <button class="play" data-cmd="toggle" aria-label="Play">
+          <svg class="p-play"><use href="#i-play"/></svg><svg class="p-pause"><use href="#i-pause"/></svg>
+        </button>
+        <button class="ib ctl" data-cmd="next" aria-label="Next"><svg><use href="#i-next"/></svg></button>
+        <button class="ib ctl repeat" data-cmd="repeat" aria-label="Repeat"><svg><use href="#i-repeat"/></svg><b class="one">1</b></button>
+      </div>
+    </div>
+    <div class="mini-progress no-drag"><div class="slider seek thin" data-seek role="slider" aria-label="Seek"><div class="rail"><div class="fill"></div></div></div></div>
+  </section>
+
+  <!-- ============================ SETTINGS ============================ -->
+  <section id="settings" aria-label="Settings">
+    <div class="st-card">
+      <div class="st-head">
+        <div>
+          <h2>Settings</h2>
+          <p>Saved automatically.</p>
+        </div>
+        <button class="ib" id="st-close" aria-label="Close settings" data-tip="Close  ·  Esc"><svg><use href="#i-close"/></svg></button>
+      </div>
+
+      <div class="st-group">
+        <div class="st-label">Background</div>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Music video background</span>
+            <span class="st-desc">Play the track's music video behind the whole app. Tracks without a video fall back to the album-art glow.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="videoBackground" />
+        </label>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Soft focus</span>
+            <span class="st-desc">Blur the background so text stays easy to read.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="softFocus" />
+        </label>
+      </div>
+
+      <div class="st-group">
+        <div class="st-label">Appearance</div>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Album-art colors</span>
+            <span class="st-desc">Tint the interface with colors taken from the current artwork.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="dynamicAccent" />
+        </label>
+      </div>
+
+      <div class="st-group">
+        <div class="st-label">Behavior</div>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Close to tray</span>
+            <span class="st-desc">Keep the music playing in the system tray when you close the window.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="closeToTray" />
+        </label>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Block ads and trackers</span>
+            <span class="st-desc">Uses uBlock Origin's filter lists. Lists update every few days.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="adBlock" />
+        </label>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Show on Discord</span>
+            <span class="st-desc">Show what you're listening to on your Discord profile, with buttons to play the song and get Echoes. In Discord, turn on Activity Privacy → Share your detected activities.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="discordPresence" />
+        </label>
+        <label class="st-row">
+          <span class="st-text">
+            <span class="st-title">Power saving mode</span>
+            <span class="st-desc">Use as little CPU, graphics and memory as possible: no video background or animations, lowest video quality, slower background updates. Music sounds the same.</span>
+          </span>
+          <input type="checkbox" class="switch" data-setting="powerSaving" />
+        </label>
+      </div>
+
+      <div class="st-group">
+        <div class="st-label">Shortcuts</div>
+        <dl class="st-keys">
+          <dt>Play / pause</dt><dd><kbd>Space</kbd></dd>
+          <dt>Next / previous</dt><dd><kbd>Ctrl</kbd><kbd>→</kbd> <kbd>Ctrl</kbd><kbd>←</kbd></dd>
+          <dt>Now Playing</dt><dd><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>F</kbd></dd>
+          <dt>Mini player</dt><dd><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>M</kbd></dd>
+          <dt>Settings</dt><dd><kbd>Ctrl</kbd><kbd>,</kbd></dd>
+          <dt>Back / forward</dt><dd><kbd>Alt</kbd><kbd>←</kbd> <kbd>Alt</kbd><kbd>→</kbd></dd>
+        </dl>
+      </div>
+
+      <div class="st-foot"><svg class="brand-logo"><use href="#i-logo"/></svg><span>Echoes <span data-version></span> · Not affiliated with YouTube or Google</span></div>
+    </div>
+  </section>
+
+  <div id="tooltip" role="tooltip"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

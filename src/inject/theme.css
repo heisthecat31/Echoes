@@ -1,0 +1,302 @@
+/* Echoes — YouTube Music restyle. Injected into music.youtube.com by the main process. */
+
+:root {
+  --rz-font: "Inter", "Segoe UI Variable Text", "Segoe UI", -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --rz-glass: rgba(14, 14, 20, 0.62);
+  --rz-glass-strong: rgba(18, 18, 26, 0.86);
+  --rz-line: rgba(255, 255, 255, 0.07);
+  --ytmusic-player-bar-height: 0px !important;
+  --ytmusic-general-background-a: transparent !important;
+  --ytmusic-general-background-b: transparent !important;
+  --ytmusic-general-background-c: transparent !important;
+  --ytmusic-background: transparent !important;
+  --ytmusic-font-family: var(--rz-font) !important;
+  --paper-font-common-base_-_font-family: var(--rz-font) !important;
+  --yt-sys-typescale-font-family: var(--rz-font) !important;
+}
+
+html, body {
+  background: transparent !important;
+  font-family: var(--rz-font) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+body, yt-formatted-string, .title, .subtitle, .byline, input, button {
+  font-family: var(--rz-font) !important;
+}
+
+/* ---------- Transparent surfaces so the shell's ambient glow shows through ---------- */
+ytmusic-app,
+ytmusic-app-layout,
+ytmusic-app-layout > #layout,
+#layout,
+ytmusic-browse-response,
+ytmusic-search-page,
+ytmusic-tabbed-search-results-renderer,
+ytmusic-section-list-renderer,
+#guide-wrapper,
+#mini-guide-background,
+#guide-spacer,
+ytmusic-guide-renderer,
+#guide-content,
+#mini-guide,
+ytmusic-nav-bar,
+#nav-bar-divider {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+ytmusic-app-layout #guide-wrapper,
+ytmusic-app-layout #mini-guide-background {
+  border-right: 1px solid var(--rz-line) !important;
+}
+
+/* Nav bar: glass only once the page is scrolled (YT toggles opacity). */
+#nav-bar-background {
+  background: var(--rz-glass) !important;
+  backdrop-filter: saturate(160%) blur(26px) !important;
+  border-bottom: 1px solid var(--rz-line) !important;
+}
+
+/* ---------- Hide YouTube Music's own player bar; Echoes draws its own ---------- */
+ytmusic-player-bar,
+#player-bar-background,
+ytmusic-app-layout > #player-bar-background {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* YT Music's corner mini player (shown because its bar is hidden). Kept in the DOM and only
+   made invisible so the <video> keeps decoding for the Echoes video background. */
+ytmusic-player[player-ui-state="MINIPLAYER"],
+ytmusic-app-layout[player-ui-state="MINIPLAYER"] ytmusic-player {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+ytmusic-app-layout[player-visible] > [slot="content"],
+ytmusic-app-layout #content {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* YT Music's page-tall dark gradient. On a transparent page Chromium rasterises it per GPU tile
+   with visibly different darkness, giving blocky horizontal bands; the shell ambient is dark anyway.
+   Only drop the paint: this element wraps the whole page content. */
+ytmusic-browse-response .background-gradient {
+  background: none !important;
+}
+
+/* Full-width header art (Home moods, artist pages). YT Music fades it into its own page colour,
+   which is transparent here, so fade the art itself out instead of ending on a hard edge. */
+ytmusic-fullbleed-thumbnail-renderer,
+ytmusic-browse-response #background {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%) !important;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%) !important;
+}
+
+/* Player page: clear, so the song-tinted ambient shows through like everywhere else. The page
+   underneath is hidden while it's open instead of being covered by a dark backdrop
+   (bridge.js sets html.echoes-player-open). No backdrop-filter: it rendered as black blobs. */
+ytmusic-player-page {
+  background: transparent !important;
+}
+html.echoes-player-open ytmusic-app-layout > #content {
+  visibility: hidden !important;
+}
+
+/* Promo / upsell banners */
+ytmusic-mealbar-promo-renderer,
+ytmusic-statement-banner-renderer {
+  display: none !important;
+}
+
+/* ---------- Search box ---------- */
+ytmusic-search-box #input-box,
+ytmusic-search-box .search-box {
+  border-radius: 14px !important;
+}
+ytmusic-search-box:not([opened]) .search-box {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid var(--rz-line) !important;
+}
+ytmusic-search-box[opened] .search-box,
+ytmusic-search-box #suggestion-list {
+  background: var(--rz-glass-strong) !important;
+  backdrop-filter: blur(30px) saturate(160%) !important;
+}
+
+/* ---------- Menus, dialogs, popups ---------- */
+tp-yt-iron-dropdown ytmusic-menu-popup-renderer,
+ytmusic-menu-popup-renderer,
+ytmusic-multi-page-menu-renderer,
+tp-yt-paper-listbox,
+ytmusic-popup-container tp-yt-paper-dialog,
+tp-yt-paper-dialog {
+  background: var(--rz-glass-strong) !important;
+  backdrop-filter: blur(30px) saturate(170%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7) !important;
+  overflow: hidden;
+}
+
+ytmusic-menu-navigation-item-renderer:hover,
+ytmusic-menu-service-item-renderer:hover,
+ytmusic-toggle-menu-service-item-renderer:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ---------- Cards & artwork ---------- */
+ytmusic-two-row-item-renderer .image-wrapper,
+ytmusic-two-row-item-renderer yt-img-shadow,
+ytmusic-two-row-item-renderer img,
+ytmusic-responsive-list-item-renderer .left-items,
+ytmusic-responsive-list-item-renderer yt-img-shadow,
+ytmusic-responsive-list-item-renderer img {
+  border-radius: 12px !important;
+}
+
+ytmusic-two-row-item-renderer[aspect-ratio="MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_CIRCLE"] .image-wrapper,
+ytmusic-two-row-item-renderer[aspect-ratio="MUSIC_TWO_ROW_ITEM_THUMBNAIL_ASPECT_RATIO_CIRCLE"] img {
+  border-radius: 50% !important;
+}
+
+ytmusic-two-row-item-renderer .image-wrapper {
+  transition: transform 0.32s cubic-bezier(.2, .8, .2, 1), box-shadow 0.32s cubic-bezier(.2, .8, .2, 1) !important;
+}
+ytmusic-two-row-item-renderer:hover .image-wrapper {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+}
+
+ytmusic-responsive-list-item-renderer {
+  border-radius: 10px;
+  transition: background-color 0.18s ease;
+}
+ytmusic-responsive-list-item-renderer:hover {
+  background-color: rgba(255, 255, 255, 0.045) !important;
+}
+
+/* Chips */
+ytmusic-chip-cloud-chip-renderer a,
+ytmusic-chip-cloud-chip-renderer .gradient-box {
+  border-radius: 999px !important;
+}
+
+/* Chip rows: one line, full words, always fits. Text, padding and gaps scale with the row's
+   width (container query units), so the row never scrolls, wraps or truncates. */
+ytmusic-chip-cloud-renderer {
+  container-type: inline-size;
+}
+ytmusic-chip-cloud-renderer #chips {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start;
+  overflow: hidden !important;
+  gap: clamp(3px, 0.7cqi, 8px);
+  scrollbar-width: none !important;
+}
+ytmusic-chip-cloud-renderer #chips > * {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+ytmusic-chip-cloud-chip-renderer .gradient-box,
+ytmusic-chip-cloud-chip-renderer a {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+ytmusic-chip-cloud-chip-renderer .text {
+  margin: 0 clamp(5px, 0.9cqi, 12px) !important;
+  font-size: clamp(9px, 1.4cqi, 14px) !important;
+  white-space: nowrap !important;
+}
+ytmusic-chip-cloud-renderer #left-arrow,
+ytmusic-chip-cloud-renderer #right-arrow,
+ytmusic-chip-cloud-renderer .arrow {
+  display: none !important;
+}
+ytmusic-carousel #items {
+  scrollbar-width: none !important;
+}
+
+/* Hover play button on sidebar playlists: YT Music draws its icon in the page background
+   colour, which is transparent here, leaving a blank white disc. Give it a solid dark icon
+   (not on the playing entry, whose white speaker icon has no disc). */
+ytmusic-guide-entry-renderer:not([play-button-state="playing"]) ytmusic-play-button-renderer yt-icon,
+ytmusic-guide-entry-renderer:not([play-button-state="playing"]) ytmusic-play-button-renderer yt-icon * {
+  color: #0b0b0f !important;
+  fill: #0b0b0f !important;
+}
+
+/* Guide entries */
+ytmusic-guide-entry-renderer tp-yt-paper-item {
+  border-radius: 10px !important;
+}
+
+/* While the player page is open, the page underneath must not scroll (bridge.js sets the class). */
+html.echoes-player-open,
+html.echoes-player-open body {
+  overflow: hidden !important;
+}
+
+/* ---------- Synced lyrics panel (bridge.js draws it over the Lyrics tab) ---------- */
+html.echoes-synced-lyrics ytmusic-player-page #tab-renderer ytmusic-section-list-renderer {
+  visibility: hidden !important;
+}
+#echoes-lyrics {
+  position: fixed;
+  z-index: 5;
+  display: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 18px 0 6px;
+  box-sizing: border-box;
+  font-family: var(--rz-font);
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+}
+#echoes-lyrics::-webkit-scrollbar { display: none; }
+#echoes-lyrics .el-pad { height: 45%; }
+#echoes-lyrics .el-line {
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  transform-origin: left center;
+  transition: color 0.35s ease, transform 0.35s cubic-bezier(.2, .8, .2, 1), opacity 0.35s ease;
+}
+#echoes-lyrics .el-line:hover { background: rgba(255, 255, 255, 0.05); }
+#echoes-lyrics .el-line.el-past { color: rgba(255, 255, 255, 0.5); }
+#echoes-lyrics .el-line.el-active {
+  color: #fff;
+  transform: scale(1.04);
+}
+#echoes-lyrics .el-line.el-gap { font-size: 18px; }
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar { width: 11px; height: 11px; background: transparent; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.2); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+::selection { background: rgba(255, 255, 255, 0.22); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
