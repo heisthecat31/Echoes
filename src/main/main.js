@@ -25,15 +25,19 @@ const ROOT = path.join(__dirname, '..', '..');
 const ASSETS = path.join(ROOT, 'assets');
 
 /* ------------------------------------------------------------------ */
-/* User agent: a plain Chrome UA (Google refuses sign-in from UAs that */
-/* mention Electron). It must stay consistent everywhere: pretending to */
-/* be another browser on the sign-in pages gets the sign-in blocked.    */
+/* User agent — Google refuses sign-in from UAs that mention Electron,  */
+/* and from embedded Chromium in general. On its sign-in pages Echoes   */
+/* presents as Firefox (headers + page), which Google accepts.          */
 /* ------------------------------------------------------------------ */
 const chromeMajor = process.versions.chrome.split('.')[0];
 const UA_PLATFORM = IS_WIN
   ? 'Windows NT 10.0; Win64; x64'
   : IS_MAC ? 'Macintosh; Intel Mac OS X 10_15_7' : 'X11; Linux x86_64';
 const CHROME_UA = `Mozilla/5.0 (${UA_PLATFORM}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeMajor}.0.0.0 Safari/537.36`;
+const FF_PLATFORM = IS_WIN
+  ? 'Windows NT 10.0; Win64; x64'
+  : IS_MAC ? 'Macintosh; Intel Mac OS X 10.15' : 'X11; Linux x86_64';
+const FIREFOX_UA = `Mozilla/5.0 (${FF_PLATFORM}; rv:145.0) Gecko/20100101 Firefox/145.0`;
 app.userAgentFallback = CHROME_UA;
 // Keep decoding video frames while the YouTube Music view is off-screen (video background).
 app.commandLine.appendSwitch('disable-features', 'BackgroundVideoTrackOptimization');
@@ -168,6 +172,7 @@ let adBlockPreloadId;
 function enableAdBlock(ses, b) {
   if (adBlockOn) return;
   adBlockOn = true;
+  if (DEV) console.log('[adblock] on');
   ses.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (d, cb) => (touchesSignIn(d) ? cb({}) : b.onBeforeRequest(d, cb)));
   ses.webRequest.onHeadersReceived({ urls: ['<all_urls>'] }, (d, cb) => (touchesSignIn(d) ? cb({}) : b.onHeadersReceived(d, cb)));
   adBlockPreloadId = ses.registerPreloadScript({ type: 'frame', filePath: require.resolve('@ghostery/adblocker-electron-preload') });
@@ -177,6 +182,7 @@ function enableAdBlock(ses, b) {
 function disableAdBlock(ses) {
   if (!adBlockOn) return;
   adBlockOn = false;
+  if (DEV) console.log('[adblock] off');
   ses.webRequest.onBeforeRequest(null);
   ses.webRequest.onHeadersReceived(null);
   if (adBlockPreloadId !== undefined) { ses.unregisterPreloadScript(adBlockPreloadId); adBlockPreloadId = undefined; }
@@ -184,13 +190,18 @@ function disableAdBlock(ses) {
   ipcMain.removeHandler('@ghostery/adblocker/is-mutation-observer-enabled');
 }
 
+// While a Google sign-in page is open the blocker is unhooked entirely (no request filters, no
+// injected script): Google refuses sign-in when anything on those pages looks altered.
+let signingIn = false;
+const adBlockWanted = () => settings().adBlock && !signingIn;
+
 async function syncAdBlock(ses) {
   if (ses) blockerSession = ses;
   if (!blockerSession) return;
   try {
-    if (settings().adBlock) {
+    if (adBlockWanted()) {
       const b = await loadBlocker();
-      if (settings().adBlock) enableAdBlock(blockerSession, b);
+      if (adBlockWanted()) enableAdBlock(blockerSession, b);
     } else {
       disableAdBlock(blockerSession);
     }
@@ -400,6 +411,17 @@ function createWindow() {
 
 function setupYtmSession(ses) {
   ses.setUserAgent(CHROME_UA);
+  ses.webRequest.onBeforeSendHeaders(
+    { urls: ['https://accounts.google.com/*', 'https://accounts.youtube.com/*'] },
+    (details, cb) => {
+      const headers = details.requestHeaders;
+      headers['User-Agent'] = FIREFOX_UA;
+      for (const k of Object.keys(headers)) {
+        if (k.toLowerCase().startsWith('sec-ch-ua')) delete headers[k];
+      }
+      cb({ requestHeaders: headers });
+    },
+  );
   syncAdBlock(ses);
   const allowed = new Set(['media', 'fullscreen', 'clipboard-sanitized-write', 'notifications']);
   ses.setPermissionRequestHandler((_wc, permission, cb) => cb(allowed.has(permission)));
@@ -407,9 +429,19 @@ function setupYtmSession(ses) {
 
 function setupYtmContents(wc) {
   // Don't call wc.setUserAgent() here: changing the UA mid-navigation cancels the navigation
-  // (Sign in silently did nothing). The session's Chrome UA is used everywhere.
+  // (Sign in silently did nothing). The Google accounts UA is swapped per request in
+  // setupYtmSession, and the preload makes navigator.userAgent match on those pages.
   wc.on('will-navigate', (e, url) => {
     if (!isAllowedInApp(url)) { e.preventDefault(); shell.openExternal(url); return; }
+  });
+  wc.on('did-start-navigation', (e, legacyUrl, _inPlace, legacyMain) => {
+    const url = (e && e.url) || legacyUrl;
+    const isMain = e && typeof e.isMainFrame === 'boolean' ? e.isMainFrame : legacyMain;
+    if (!isMain) return;
+    const next = isSignInPage(url);
+    if (next === signingIn) return;
+    signingIn = next;
+    syncAdBlock();
   });
   wc.setWindowOpenHandler(({ url }) => {
     if (isGoogleAccounts(url)) return { action: 'allow' };
@@ -488,6 +520,8 @@ ipcMain.handle('lyrics:get', async (e, query) => {
   return lyricsCache.get(key);
 });
 
+// Hand the preload the Firefox UA so Google's sign-in JS sees the same UA as the request headers.
+ipcMain.on('ytm:accounts-ua', (e) => { e.returnValue = FIREFOX_UA; });
 ipcMain.on('win:minimize', () => win && win.minimize());
 ipcMain.on('win:toggle-maximize', () => {
   if (!win) return;
